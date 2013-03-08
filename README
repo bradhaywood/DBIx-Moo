@@ -75,3 +75,70 @@ SYNOPSIS
         # get the first row object
         say $users_rs->first;
 
+METHODS
+  connect
+    Initialises a connection to DBI using DBIx::Connector.
+
+        my $schema = MySchema->new->connect;
+
+  table
+    If the table exists in the config, it will set it as the currently
+    active table for that instance and return a DBIx::Moo::ResultSet object.
+
+        my $users = $schema->table('users');
+
+    You can even chain this onto the initial "connect" method
+
+        my $users = $schema->new->connect->table('users');
+
+  search
+    Returns a DBIx::Moo::ResultSet based on your search query. If it's
+    expecting a scalar you'll get an object, if it's expecting an array,
+    you'll get the results
+
+        my $users = $users->search({ status => 'active' });
+        my @users = $users->search({ status => 'active' });
+        for my $user (@users) { say $user->{name} }
+
+    The first hashref are the items you want to search for, the optional
+    second hashref are extra search options, like "order_by" and "rows". For
+    more information on the search syntax, please check out
+    SQL::Abstract::More as it uses this.
+
+  find
+    If you have a primary key set you can use find to search for a
+    particular value. It will search for the value matched against the
+    primary key.
+
+        if (my $user = $users->find(10)) {
+            say "Found user with ID 10";
+        }
+
+    This will return a DBIx::Moo::Result object
+
+  count
+    Simply returns the number of rows from a DBIx::Moo::ResultSet result
+
+        say "There are " . $resultset->count . " rows";
+
+  first
+    Retrieves the first row of a resultset as a DBIx::Moo::Result object
+
+        say $resultset->first->{name};
+
+  last
+    Same as first, but gets the last row instead
+
+  method
+    Injects a convenience method into a resultset
+
+        my $users = $schema->table('users');
+        $users->method('get_me_the_first_three' => sub {
+            return shift->search(undef, { rows => 3, order_by => [qw/+name/] });
+        });
+
+        my @first_three_users = $users->get_me_the_first_three;
+        for my $user (@first_three_users) {
+            ...
+        }
+
