@@ -6,6 +6,12 @@ author   q{Brad Haywood <brad@perlpowered.com>};
 license  'perl';
 
 build_requires 'Test::More';
+requires (
+    'Moo',
+    'Scalar::Util',
+    'DBIx::Connector',
+    'SQL::Abstract::More',
+);
 
 auto_install;
 
