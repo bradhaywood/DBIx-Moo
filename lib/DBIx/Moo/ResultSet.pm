@@ -33,7 +33,7 @@ sub search {
     );
 
     $self->_result($self->dbh->selectall_arrayref($sql, { Slice => {} }, @bind));
-    return $self;
+    return wantarray ? @{$self->_result} : $self;
 }
 
 sub find {
@@ -60,7 +60,7 @@ sub count {
 sub all {
     my $self = shift;
 
-    return wantarray ? @{$self->_result} : $self->_result;
+    return @{$self->_result};
 }
 
 1;
