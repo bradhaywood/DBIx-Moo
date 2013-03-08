@@ -67,6 +67,9 @@ Now you can reuse this Schema whenever you want
         say $user->{status};
     }
 
+    # you can also use search to save as an array (similar as calling ->all)
+    my @users = $users->search({ status => 'active' });
+
     # or save it as a scalar
     my $users_rs = $users->search({ status => 'active' });
     
