@@ -57,6 +57,11 @@ sub first {
     return $self->_to_result->first;
 }
 
+sub last {
+    my $self = shift;
+    return $self->_to_result->last;
+}
+
 sub count {
     my $self = shift;
     return scalar @{$self->_result};
