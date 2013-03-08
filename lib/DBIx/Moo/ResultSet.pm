@@ -25,12 +25,17 @@ sub search {
         %{$self->_opts} = (%{$self->_opts}, %$opts);
     }
 
-    my ($sql, @bind) = $self->abstract->select(
+    my %where = (
         -columns => $self->_columns,
         -from    => $self->_table,
         -where   => $self->_where,
-        -order_by => $self->_opts->{order_by}||[],
+        -order_by => $self->_opts->{order_by}||[]
     );
+
+    $where{'-limit'} = $self->_opts->{rows}
+        if $self->_opts->{rows};
+
+    my ($sql, @bind) = $self->abstract->select(%where);
 
     $self->_result($self->dbh->selectall_arrayref($sql, { Slice => {} }, @bind));
     return wantarray ? @{$self->_result} : $self;
