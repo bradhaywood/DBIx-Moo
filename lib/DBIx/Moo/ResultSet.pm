@@ -52,6 +52,28 @@ sub find {
     }
 }
 
+# seems a bit ropey..
+sub insert {
+    my ($self, $values) = @_;
+    if ($self->pk) {
+        my %opts = (
+            -into  => $self->_table,
+            -values => $values,
+        );
+        my ($sql, @bind) = $self->abstract->insert(%opts);
+        my $sth = $self->dbh->prepare($sql);
+        $self->abstract->bind_params($sth, @bind);
+        $sth->execute;
+        
+        return $self->find($self->dbh->last_insert_id(undef, undef, $self->_table, undef));
+    }
+    else {
+        warn "Can't insert() without a primary key on " . $self->_table;
+        return 0;
+    }
+    
+}
+
 sub first {
     my $self = shift;
     return $self->_to_result->first;
