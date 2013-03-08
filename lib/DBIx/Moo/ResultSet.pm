@@ -73,4 +73,14 @@ sub all {
     return @{$self->_result};
 }
 
+sub method {
+    my ($self, $name, $code) = @_;
+    {
+        no strict 'refs';
+        *{__PACKAGE__ . "::$name"} = sub {
+            $code->($self);
+        };
+    }
+}
+
 1;
