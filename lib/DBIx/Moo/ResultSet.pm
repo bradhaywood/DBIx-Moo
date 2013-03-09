@@ -1,8 +1,22 @@
 package DBIx::Moo::ResultSet;
 
 use Moo;
+use Clone 'clone';
 use DBIx::Moo::Result;
 with 'DBIx::Moo::Shared';
+
+around 'search' => sub {
+    my $orig  = shift;
+    my $self  = shift;
+    my $clone = $self->_clone;
+    $clone->$orig(@_);
+    return $clone;
+};
+
+sub _clone {
+    my $self = shift;
+    return clone $self;
+}
 
 sub _to_result {
     my $self = shift;
