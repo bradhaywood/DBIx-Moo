@@ -8,6 +8,7 @@ license  'perl';
 build_requires 'Test::More';
 requires (
     'Moo',
+    'Clone',
     'Scalar::Util',
     'DBIx::Connector',
     'SQL::Abstract::More',
