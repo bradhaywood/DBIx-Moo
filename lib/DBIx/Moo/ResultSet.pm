@@ -51,7 +51,7 @@ sub search {
 
     my ($sql, @bind) = $self->abstract->select(%where);
 
-    $self->_result($self->dbh->selectall_arrayref($sql, { Slice => {} }, @bind));
+    $self->_result($self->_dbh->selectall_arrayref($sql, { Slice => {} }, @bind));
     return wantarray ? @{$self->_result} : $self;
 }
 
@@ -109,6 +109,15 @@ sub all {
     return @{$self->_result};
 }
 
+sub result {
+    my $self = shift;
+    if ($self->count > 1) {
+        warn "Can't convert result with more than 1 row to Result object";
+        return 0;
+    }
+    else { return $self->_to_result }
+}
+    
 sub method {
     my ($self, $name, $code) = @_;
     {
@@ -118,5 +127,6 @@ sub method {
         };
     }
 }
+
 
 1;

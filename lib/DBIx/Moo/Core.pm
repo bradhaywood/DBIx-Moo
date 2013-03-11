@@ -37,7 +37,8 @@ sub table {
         my %opts = (
             dbh      => $self->dbh,
             _table   => $table,
-            _columns => $self->$table->{columns}
+            _columns => $self->$table->{columns},
+            _config  => $self->_config,
         );
         if ($self->$table->{primary_key}) { $opts{pk} = $self->$table->{primary_key}; }
        
