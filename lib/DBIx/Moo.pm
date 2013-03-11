@@ -58,7 +58,7 @@ Now you can reuse this Schema whenever you want
     my $users  = $schema->table('users');
     
     # get a single row using primary key
-    say $users->find(10)->{name};
+    say $users->find(10)->first->{name};
 
     # get all active users
     my @users = $users->search({ status => 'active' })->all;

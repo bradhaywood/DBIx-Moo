@@ -60,7 +60,7 @@ sub search {
 sub find {
     my ($self, $val) = @_;
     if ($self->pk) {
-       return $self->search({ $self->pk => $val })->first;
+       return $self->search({ $self->pk => $val })->result;
     }
     else {
         warn "Can't use find() because there's no primary key set on " . $self->_table;
