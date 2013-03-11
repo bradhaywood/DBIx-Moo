@@ -21,10 +21,12 @@ sub _clone {
 sub _to_result {
     my $self = shift;
     my %opts = (
+        pk       => $self->pk||undef,
         dbh      => $self->dbh,
         _table   => $self->_table,
         _columns => $self->_columns,
         _result  => $self->_result,
+        _resultset => $self,
     );
 
     return DBIx::Moo::Result->new(%opts);
@@ -111,11 +113,8 @@ sub all {
 
 sub result {
     my $self = shift;
-    if ($self->count > 1) {
-        warn "Can't convert result with more than 1 row to Result object";
-        return 0;
-    }
-    else { return $self->_to_result }
+    if ($self->count == 1) { return $self->_to_result; }
+    else { return 0; }
 }
     
 sub method {

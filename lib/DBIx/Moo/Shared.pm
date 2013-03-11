@@ -11,6 +11,7 @@ has '_table' => ( is => 'rw' );
 has '_result' => ( is => 'rw' );
 has '_config' => ( is => 'rw' );
 has '_columns' => ( is => 'rw', required => 1 );
+has '_resultset' => ( is => 'rw' );
 has '_where' => (
     is  => 'rw',
     isa => sub {

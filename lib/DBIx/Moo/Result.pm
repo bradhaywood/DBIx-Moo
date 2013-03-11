@@ -1,6 +1,7 @@
 package DBIx::Moo::Result;
 
 use Moo;
+use DBIx::Moo::ResultSet;
 with 'DBIx::Moo::Shared';
 
 sub first {
@@ -25,7 +26,7 @@ sub update {
     $self->abstract->bind_params($sth, @bind);
     $sth->execute;
 
-    return $self;
+    return $self->_resultset->search({ $self->pk => $self->first->{$self->pk} })->_to_result;
 }
 
 1;
