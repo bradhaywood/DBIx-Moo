@@ -122,7 +122,7 @@ METHODS
         say "There are " . $resultset->count . " rows";
 
   first
-    Retrieves the first row of a resultset as a DBIx::Moo::Result object
+    Retrieves the first row of a resultset as a HashRef
 
         say $resultset->first->{name};
 
@@ -141,4 +141,17 @@ METHODS
         for my $user (@first_three_users) {
             ...
         }
+
+  result
+    Use this on a ResultSet object to get a Result object (for updating). It
+    will only allow you to do this if there is one row found.
+
+        my $result = $resultset->search({ name => 'Foobie' })->result;
+
+  update
+    Updates a row with the specified parameters. Must be called from a
+    DBIx::Moo::Result object
+
+        my $row = $resultset->search({ name => 'Foobie' })->result;
+        $row->update({ name => 'Bar' });
 

@@ -126,7 +126,7 @@ Simply returns the number of rows from a DBIx::Moo::ResultSet result
 
 =head2 first
 
-Retrieves the first row of a resultset as a DBIx::Moo::Result object
+Retrieves the first row of a resultset as a HashRef
 
     say $resultset->first->{name};
 
@@ -147,6 +147,20 @@ Injects a convenience method into a resultset
     for my $user (@first_three_users) {
         ...
     }
+
+=head2 result
+
+Use this on a ResultSet object to get a Result object (for updating). It will only allow you to do this 
+if there is one row found.
+
+    my $result = $resultset->search({ name => 'Foobie' })->result;
+
+=head2 update
+
+Updates a row with the specified parameters. Must be called from a DBIx::Moo::Result object
+
+    my $row = $resultset->search({ name => 'Foobie' })->result;
+    $row->update({ name => 'Bar' });
 
 =cut
 
