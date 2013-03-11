@@ -157,7 +157,8 @@ if there is one row found.
 
 =head2 update
 
-Updates a row with the specified parameters. Must be called from a DBIx::Moo::Result object
+Updates a row with the specified parameters. Must be called from a DBIx::Moo::Result object. Will return a 
+DBIx::Moo::Result object
 
     my $row = $resultset->search({ name => 'Foobie' })->result;
     $row->update({ name => 'Bar' });
