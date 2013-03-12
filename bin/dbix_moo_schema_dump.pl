@@ -3,7 +3,7 @@
 use warnings;
 use strict;
 use 5.010;
-use DBIx::Connector;
+use DBI; 
 
 sub _write_schema {
     my ($tables, $pks, $dsn) = @_;
@@ -44,6 +44,9 @@ has '$table' => (
 EOF
     }
 
+    for (my $i = 0; $i < @$dsn; $i++) {
+        $dsn->[$i] = "'$dsn->[$i]',";
+    }
     $dsn = join "\n", @{$dsn};
     print $fh "#" x 40;
     print $fh "\n";
@@ -60,7 +63,7 @@ has '_config' => (
     },
     default => sub {
         [
-            'dbi:SQLite:dbname=test.db',
+            $dsn
         ]
     },
 );
@@ -76,25 +79,27 @@ if (@ARGV > 0) {
     my $dbh;
     my ($dbi, $user, $pass) = @ARGV;
     if ($user) {
-        $dbh = DBIx::Connector->connect(
+        $dbh = DBI->connect(
             $dbi,
             $user,
             $pass
         );
     }
-    else { $dbh = DBIx::Connector->connect($dbi); }
+    else { $dbh = DBI->connect($dbi); }
 
     my $tables = {};
     my $pks    = {};
-    my $sth = $dbh->table_info;
+    my $sth = $dbh->table_info('','','%', 'TABLE');
     
-    while(my @row = $sth->fetchrow_array) {
-        my ($table, $type) = ($row[2], $row[3]);
+    foreach my $table (keys %{$sth->fetchall_hashref('TABLE_NAME')}) {
+        my $type = 'TABLE';
         if ($type eq 'TABLE') {
             $tables->{$table} = [];
             $sth = $dbh->primary_key_info(undef, undef, $table);
-            my $pk_info = $sth->fetchall_arrayref;
-            push @{$pks->{$table}}, $pk_info->[0][3];
+            if ($sth) {
+                my $pk_info = $sth->fetchall_arrayref;;
+                push @{$pks->{$table}}, $pk_info->[0][3];
+            }
             $sth = $dbh->column_info(undef, undef, $table, undef);
             while (my @col_row = $sth->fetchrow_array) {
                 my $col_name = $col_row[3];
