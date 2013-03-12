@@ -4,6 +4,7 @@ use warnings;
 use strict;
 use 5.010;
 use DBI; 
+use DBIx::Admin::TableInfo;
 
 sub _write_schema {
     my ($tables, $pks, $dsn) = @_;
@@ -89,23 +90,35 @@ if (@ARGV > 0) {
 
     my $tables = {};
     my $pks    = {};
-    my $sth = $dbh->table_info('','','%', 'TABLE');
+    my $sth;
     
-    foreach my $table (keys %{$sth->fetchall_hashref('TABLE_NAME')}) {
-        my $type = 'TABLE';
-        if ($type eq 'TABLE') {
-            $tables->{$table} = [];
-            $sth = $dbh->primary_key_info(undef, undef, $table);
-            if ($sth) {
-                my $pk_info = $sth->fetchall_arrayref;;
-                push @{$pks->{$table}}, $pk_info->[0][3];
-            }
-            $sth = $dbh->column_info(undef, undef, $table, undef);
-            while (my @col_row = $sth->fetchrow_array) {
-                my $col_name = $col_row[3];
-                push @{$tables->{$table}}, $col_name;
-            }
-        }         
+    if ($dbi =~ /SQLite/i) {
+        $dbh->do('PRAGMA foreign_keys = ON');
+    }
+
+    my ($schema) = $dbi =~ /^dbi:Oracle/i
+        ? $user
+        : $dbi =~ /^dbi:Pg/i
+        ? 'public'
+        : undef;
+
+    my $table_info = DBIx::Admin::TableInfo->new(
+        dbh     => $dbh,
+        schema  => $schema,
+    )->info();
+
+    foreach my $table (keys %$table_info) {
+        $tables->{$table} = [];
+        $sth = $dbh->primary_key_info(undef, undef, $table);
+        if ($sth) {
+            my $pk_info = $sth->fetchall_arrayref;;
+            push @{$pks->{$table}}, $pk_info->[0][3];
+        }
+        $sth = $dbh->column_info(undef, undef, $table, undef);
+        while (my @col_row = $sth->fetchrow_array) {
+            my $col_name = $col_row[3];
+            push @{$tables->{$table}}, $col_name;
+        }
     }
 
     $dbh->disconnect();

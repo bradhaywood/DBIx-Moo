@@ -12,6 +12,7 @@ requires (
     'Scalar::Util',
     'DBIx::Connector',
     'SQL::Abstract::More',
+    'DBIx::Admin::TableInfo',
 );
 
 auto_install;
