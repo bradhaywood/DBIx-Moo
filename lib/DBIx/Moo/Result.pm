@@ -17,8 +17,9 @@ sub last {
 sub update {
     my ($self, $values) = @_;
     if ($self->pk) {
+        my $where = { $self->pk => $self->first->{$self->pk} };
         my %opts = (
-            -where  => $self->_where,
+            -where  => $where,
             -table  => $self->_table,
             -set    => $values,
         );
@@ -27,7 +28,7 @@ sub update {
         $self->abstract->bind_params($sth, @bind);
         $sth->execute;
 
-        return $self->_resultset->search({ $self->pk => $self->first->{$self->pk} })->_to_result;
+        return $self->_resultset->search($where)->_to_result;
     }
     else {
         warn "update() expects a primary key on the table";
