@@ -1,111 +1,81 @@
 package DBIx::Moo;
 
-use 5.006;
-use strict;
-use warnings;
+our $VERSION = '0.001';
 
 =head1 NAME
 
-DBIx::Moo - The great new DBIx::Moo!
+DBIx::Moo - Minimalistic ORM built on Moo
 
-=head1 VERSION
+=head1 DESCRIPTION
 
-Version 0.01
-
-=cut
-
-our $VERSION = '0.01';
-
+DBIx::Moo is a minimal ORM built on Moo. Instead of multiple files (one for each table), it uses just the one. Your schema is built using Moo. This is 
+just a test module and shouldn't really be used for any thing. I built it in an attempt to get used to OOP frameworks like Moose and Moo. This is my first one.
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+Create your Schema module
 
-Perhaps a little code snippet.
+    package MySchema;
+    
+    use Moo;
+    extends 'DBIx::Moo::Core';
 
-    use DBIx::Moo;
+    has 'users' => (
+        is  => 'rw',
+        isa => sub {
+            die "columns expects HashRef\n"
+                if ref(shift) ne 'HASH';
+        },
+        default => sub {
+            {
+                table       => 1,
+                columns     => [qw/ id name status /],
+                primary_key => 'id',
+            }
+        }
+    );
 
-    my $foo = DBIx::Moo->new();
-    ...
+    has '_config' => (
+        is => 'ro',
+        isa => sub {
+            die "_config expects ArrayRef"
+                if ref(shift) ne 'ARRAY';
+        },
+        default => sub {
+            [
+                'dbi:Pg:dbname=my_db',
+                'myuser',
+                'mypass',
+            ]
+        },
+    );    
 
-=head1 EXPORT
+Now you can reuse this Schema whenever you want
 
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+    use MySchema;
 
-=head1 SUBROUTINES/METHODS
+    my $schema = Schema->new->connect();
+    my $users  = $schema->table('users');
+    
+    # get a single row using primary key
+    say $users->find(10)->{name};
 
-=head2 function1
+    # get all active users
+    my @users = $users->search({ status => 'active' })->all;
+    for my $user (@users) {
+        say $user->{name};
+        say $user->{status};
+    }
 
-=cut
+    # or save it as a scalar
+    my $users_rs = $users->search({ status => 'active' });
+    
+    # count the rows
+    say $users_rs->count;
 
-sub function1 {
-}
-
-=head2 function2
-
-=cut
-
-sub function2 {
-}
-
-=head1 AUTHOR
-
-Brad Haywood, C<< <brad at perlpowered.com> >>
-
-=head1 BUGS
-
-Please report any bugs or feature requests to C<bug-dbix-moo at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=DBIx-Moo>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-
-
-
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc DBIx::Moo
-
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker (report bugs here)
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=DBIx-Moo>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/DBIx-Moo>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/DBIx-Moo>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/DBIx-Moo/>
-
-=back
-
-
-=head1 ACKNOWLEDGEMENTS
-
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2013 Brad Haywood.
-
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
-
-See http://dev.perl.org/licenses/ for more information.
-
+    # get the first row object
+    say $users_rs->first;
 
 =cut
 
-1; # End of DBIx::Moo
+1;
